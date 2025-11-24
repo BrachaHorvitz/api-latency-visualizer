@@ -90,7 +90,17 @@ function App() {
     };
   }, [runCheck]);
 
-  // TODO: compute total, avgLatency, maxLatency based on measurements
+  const totalChecks = measurements.length;
+  const avgLatency =
+    totalChecks === 0
+      ? 0
+      : Math.round(
+          measurements.reduce((sum, measurement) => sum + measurement.latencyMs, 0) / totalChecks,
+        );
+  const maxLatency = measurements.reduce(
+    (max, measurement) => Math.max(max, measurement.latencyMs),
+    0,
+  );
 
   return (
     <main
@@ -252,24 +262,40 @@ function App() {
               gap: "1rem",
             }}
           >
-            <div style={{ backgroundColor: "#312e81", borderRadius: "0.75rem", padding: "1rem" }}>
+            <div
+              style={{
+                backgroundColor: "#2e1065",
+                borderRadius: "0.75rem",
+                padding: "1rem",
+                border: "1px solid rgba(129, 140, 248, 0.4)",
+              }}
+            >
               <p style={{ color: "#a5b4fc", margin: 0, fontSize: "0.9rem" }}>Total Checks</p>
-              <p style={{ fontSize: "1.75rem", margin: "0.35rem 0 0" }}>--</p>
+              <p style={{ fontSize: "1.75rem", margin: "0.35rem 0 0" }}>{totalChecks}</p>
             </div>
-            <div style={{ backgroundColor: "#312e81", borderRadius: "0.75rem", padding: "1rem" }}>
-              <p style={{ color: "#a5b4fc", margin: 0, fontSize: "0.9rem" }}>Avg Latency (ms)</p>
-              <p style={{ fontSize: "1.75rem", margin: "0.35rem 0 0" }}>--</p>
+            <div
+              style={{
+                backgroundColor: "#1e1b4b",
+                borderRadius: "0.75rem",
+                padding: "1rem",
+                border: "1px solid rgba(96, 165, 250, 0.4)",
+              }}
+            >
+              <p style={{ color: "#bae6fd", margin: 0, fontSize: "0.9rem" }}>Avg Latency (ms)</p>
+              <p style={{ fontSize: "1.75rem", margin: "0.35rem 0 0" }}>{avgLatency}</p>
             </div>
-            <div style={{ backgroundColor: "#312e81", borderRadius: "0.75rem", padding: "1rem" }}>
-              <p style={{ color: "#a5b4fc", margin: 0, fontSize: "0.9rem" }}>Max Latency (ms)</p>
-              <p style={{ fontSize: "1.75rem", margin: "0.35rem 0 0" }}>--</p>
+            <div
+              style={{
+                backgroundColor: "#312e81",
+                borderRadius: "0.75rem",
+                padding: "1rem",
+                border: "1px solid rgba(251, 191, 36, 0.4)",
+              }}
+            >
+              <p style={{ color: "#fde68a", margin: 0, fontSize: "0.9rem" }}>Max Latency (ms)</p>
+              <p style={{ fontSize: "1.75rem", margin: "0.35rem 0 0" }}>{maxLatency}</p>
             </div>
           </div>
-          {/* TODO: Stats section:
-              - Total checks
-              - Avg latency
-              - Max latency
-          */}
         </section>
 
         <section
