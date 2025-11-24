@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Measurement = {
   id: number;
@@ -7,6 +7,8 @@ type Measurement = {
   status: number | null;
   ok: boolean;
 };
+
+const MAX_MEASUREMENTS = 100;
 
 function App() {
   const [url, setUrl] = useState<string>("https://api.github.com");
@@ -19,24 +21,76 @@ function App() {
 
   // TODO: implement useEffect to start/stop periodic checks when isRunning/url/intervalMs change
 
-  function runCheck() {
-    // TODO: implement latency measurement using fetch(url) and performance.now()
-  }
+  const runCheck = useCallback(async () => {
+    const startedAt = performance.now();
+    let measurement: Measurement;
+
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      const latencyMs = Math.round(performance.now() - startedAt);
+      measurement = {
+        id: idRef.current++,
+        timestamp: new Date().toISOString(),
+        latencyMs,
+        status: response.status,
+        ok: response.ok,
+      };
+    } catch (error) {
+      const latencyMs = Math.round(performance.now() - startedAt);
+      measurement = {
+        id: idRef.current++,
+        timestamp: new Date().toISOString(),
+        latencyMs,
+        status: null,
+        ok: false,
+      };
+      console.error("Latency check failed", error);
+    }
+
+    setMeasurements((prev) => [measurement, ...prev].slice(0, MAX_MEASUREMENTS));
+  }, [url]);
+
+  useEffect(() => {
+    if (!isRunning) {
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    void runCheck();
+    const handle = window.setInterval(() => {
+      void runCheck();
+    }, intervalMs);
+    timerRef.current = handle;
+    
+    
+
+    return () => {
+      window.clearInterval(handle);
+      timerRef.current = null;
+    };
+  }, [isRunning, intervalMs, runCheck]);
+
+  useEffect(() => {
+    const debugWindow = window as typeof window & {
+      runLatencyCheck?: () => void;
+    };
+
+    debugWindow.runLatencyCheck = () => {
+      void runCheck();
+    };
+
+    return () => {
+      delete debugWindow.runLatencyCheck;
+    };
+  }, [runCheck]);
 
   // TODO: compute total, avgLatency, maxLatency based on measurements
-
-  // Temporary references to avoid unused warnings until logic is wired up.
-  const unusedStateRefs = {
-    setUrl,
-    setIntervalMs,
-    setIsRunning,
-    setMeasurements,
-    timerRef,
-    idRef,
-    runCheck,
-  };
-  void unusedStateRefs;
-  void useEffect;
+  void setUrl;
+  void setIntervalMs;
+  void setIsRunning;
 
   return (
     <main
