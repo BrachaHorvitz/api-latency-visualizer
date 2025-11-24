@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# API Latency Visualizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+API Latency Visualizer is a lightweight React + TypeScript dashboard that continually pings any HTTP endpoint you provide, measures response latency with `performance.now()`, and surfaces the results in real time. It is ideal for diagnosing flaky APIs, validating SLAs, or showcasing endpoint performance during demos.
 
-Currently, two official plugins are available:
+## 🎯 Purpose
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Teams often need a zero-setup way to spot-check how an API behaves over time. This project fills that gap: specify a URL and interval, click **Start**, and immediately see latency stats, status codes, and recent measurements directly in the browser—no backend or databases required.
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 🔗 Configure target API URL and polling interval (≥ 500 ms)
+- ▶️ Start/Stop polling with a live “Running…” badge
+- ♻️ Restart Test button clears history and resets IDs
+- 📊 Real-time stats: total checks, average latency, and max latency
+- 🧾 Measurement table with ID, local time, latency, and color-coded HTTP status (including error state)
+- 🌓 Dark-themed, responsive layout (stacked controls/cards + scrollable table on mobile)
+- 🐞 Optional console helper: call `runLatencyCheck()` manually for ad-hoc pings
 
-## Expanding the ESLint configuration
+## 🧱 Folder Structure
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+api-latency-visualizer/
+├── public/
+├── src/
+│   ├── App.tsx        # Main UI + polling logic
+│   ├── index.css      # Global + responsive styles
+│   ├── App.css        # Vite starter styles (kept for reference)
+│   └── main.tsx       # React entry point
+├── package.json
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🛠 Tech Stack
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- React 18 with hooks (`useState`, `useEffect`, `useRef`)
+- TypeScript for strict typing
+- Vite for dev/build tooling
+- Fetch API + `performance.now()` for latency measurement
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🚀 How to Run
+
+```bash
+# Install dependencies
+npm install
+
+# Start the Vite dev server (defaults to http://localhost:5173)
+npm run dev
 ```
+
+Adjust the URL and interval, click **Start**, and the dashboard will begin logging measurements instantly—all in the browser.
+
+## 🔭 Future Improvements
+
+- Persist measurement history (local storage or backend) for long-running tests
+- Add charts or sparklines to visualize latency trends
+- Support custom headers/auth tokens for secured endpoints
+- Export measurements as CSV/JSON
+- Add alerting when latency exceeds a configurable threshold
+
+---
+
+API Latency Visualizer delivers a clear, responsive view into API performance with zero setup. Contributions, bug reports, and feature ideas are welcome! 🧑‍💻
+ 
