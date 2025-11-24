@@ -9,10 +9,12 @@ type Measurement = {
 };
 
 const MAX_MEASUREMENTS = 100;
+const MIN_INTERVAL_MS = 500;
 
 function App() {
   const [url, setUrl] = useState<string>("https://api.github.com");
   const [intervalMs, setIntervalMs] = useState<number>(5000);
+  const [intervalInput, setIntervalInput] = useState<string>(() => String(5000));
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
 
@@ -72,6 +74,7 @@ function App() {
       timerRef.current = null;
     };
   }, [isRunning, intervalMs, runCheck]);
+  // For debugging: useEffect below exposes runLatencyCheck on window for manual triggering in browser console
 
   useEffect(() => {
     const debugWindow = window as typeof window & {
@@ -88,9 +91,6 @@ function App() {
   }, [runCheck]);
 
   // TODO: compute total, avgLatency, maxLatency based on measurements
-  void setUrl;
-  void setIntervalMs;
-  void setIsRunning;
 
   return (
     <main
@@ -134,14 +134,106 @@ function App() {
           }}
         >
           <h2 style={{ marginTop: 0, marginBottom: "1rem" }}>Controls</h2>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "1rem",
+              alignItems: "flex-end",
+            }}
+          >
+            <label style={{ flex: "1 1 260px", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+              <span style={{ color: "#cbd5f5", fontSize: "0.9rem" }}>API URL</span>
+              <input
+                type="url"
+                value={url}
+                onChange={(event) => setUrl(event.target.value)}
+                placeholder="https://api.example.com/ping"
+                style={{
+                  backgroundColor: "#0f172a",
+                  border: "1px solid rgba(148, 163, 184, 0.4)",
+                  borderRadius: "0.75rem",
+                  padding: "0.75rem 1rem",
+                  color: "#f8fafc",
+                }}
+              />
+            </label>
+
+            <label style={{ width: "180px", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+              <span style={{ color: "#cbd5f5", fontSize: "0.9rem" }}>Interval (ms)</span>
+              <input
+                type="number"
+                min={MIN_INTERVAL_MS}
+                value={intervalInput}
+                onChange={(event) => {
+                  const { value } = event.target;
+                  setIntervalInput(value);
+
+                  if (value === "") {
+                    return;
+                  }
+
+                  const parsed = Number(value);
+                  if (Number.isNaN(parsed)) {
+                    return;
+                  }
+
+                  setIntervalMs(parsed);
+                }}
+                onBlur={() => {
+                  const nextValue = intervalInput.trim();
+                  if (nextValue === "") {
+                    setIntervalMs(MIN_INTERVAL_MS);
+                    setIntervalInput(String(MIN_INTERVAL_MS));
+                    return;
+                  }
+
+                  const parsed = Number(nextValue);
+                  if (!Number.isFinite(parsed)) {
+                    setIntervalMs(MIN_INTERVAL_MS);
+                    setIntervalInput(String(MIN_INTERVAL_MS));
+                    return;
+                  }
+
+                  const normalized = Math.max(MIN_INTERVAL_MS, parsed);
+                  setIntervalMs(normalized);
+                  setIntervalInput(String(normalized));
+                }}
+                style={{
+                  backgroundColor: "#0f172a",
+                  border: "1px solid rgba(148, 163, 184, 0.4)",
+                  borderRadius: "0.75rem",
+                  padding: "0.75rem 1rem",
+                  color: "#f8fafc",
+                }}
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setIsRunning((prev) => !prev)}
+              disabled={!url.trim() || !intervalInput.trim() || intervalMs <= 0}
+              style={{
+                flex: "0 0 140px",
+                padding: "0.9rem 1.25rem",
+                borderRadius: "0.75rem",
+                border: "none",
+                fontWeight: 600,
+                cursor: !url.trim() || intervalMs <= 0 ? "not-allowed" : "pointer",
+                opacity: !url.trim() || intervalMs <= 0 ? 0.5 : 1,
+                backgroundColor: isRunning ? "#dc2626" : "#16a34a",
+                color: "#f8fafc",
+                transition: "transform 120ms ease, filter 120ms ease",
+              }}
+            >
+              {isRunning ? "Stop" : "Start"}
+            </button>
+          </div>
           {/* TODO: Controls section:
               - API URL input
               - Interval (ms) input
               - Start/Stop button
           */}
-          <p style={{ color: "#94a3b8", margin: 0 }}>
-            Inputs and Start/Stop controls will go here.
-          </p>
         </section>
 
         <section
