@@ -315,13 +315,83 @@ function App() {
                 : "No measurements yet"}
             </span>
           </div>
-          <p style={{ color: "#64748b", marginTop: "0.75rem" }}>
-            Once implemented, this table will list each check with its timestamp, latency, and HTTP
-            status.
-          </p>
-          {/* TODO: Table:
-              - Columns: ID, Time, Latency (ms), Status
-          */}
+          <div style={{ marginTop: "1rem", overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                minWidth: "480px",
+              }}
+            >
+              <thead>
+                <tr style={{ backgroundColor: "#020617" }}>
+                  {["ID", "Time", "Latency (ms)", "Status"].map((heading) => (
+                    <th
+                      key={heading}
+                      style={{
+                        textAlign: "left",
+                        padding: "0.75rem 1rem",
+                        fontWeight: 600,
+                        color: "#cbd5f5",
+                        borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
+                        fontSize: "0.9rem",
+                      }}
+                    >
+                      {heading}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {measurements.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      style={{
+                        padding: "1.25rem 1rem",
+                        textAlign: "center",
+                        color: "#94a3b8",
+                      }}
+                    >
+                      No measurements yet. Click “Start” to begin.
+                    </td>
+                  </tr>
+                ) : (
+                  measurements.map((measurement) => (
+                    <tr
+                      key={measurement.id}
+                      style={{
+                        borderBottom: "1px solid rgba(148, 163, 184, 0.15)",
+                      }}
+                    >
+                      <td style={{ padding: "0.85rem 1rem", color: "#e2e8f0" }}>
+                        #{measurement.id}
+                      </td>
+                      <td style={{ padding: "0.85rem 1rem", color: "#cbd5f5" }}>
+                        {new Date(measurement.timestamp).toLocaleTimeString()}
+                      </td>
+                      <td style={{ padding: "0.85rem 1rem", color: "#f8fafc" }}>
+                        {measurement.latencyMs}
+                      </td>
+                      <td style={{ padding: "0.85rem 1rem" }}>
+                        {measurement.status === null ? (
+                          <span style={{ color: "#fb923c", fontWeight: 600 }}>error</span>
+                        ) : measurement.ok ? (
+                          <span style={{ color: "#4ade80", fontWeight: 600 }}>
+                            {measurement.status}
+                          </span>
+                        ) : (
+                          <span style={{ color: "#f87171", fontWeight: 600 }}>
+                            {measurement.status}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
       </div>
     </main>
