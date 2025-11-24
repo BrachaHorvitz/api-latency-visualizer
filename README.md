@@ -60,4 +60,13 @@ Adjust the URL and interval, click **Start**, and the dashboard will begin loggi
 ---
 
 API Latency Visualizer delivers a clear, responsive view into API performance with zero setup. Contributions, bug reports, and feature ideas are welcome! 🧑‍💻
- 
+
+<p align="center">
+  <img src="./public/image.png" alt="API Latency Visualizer Screenshot" width="850" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);" />
+</p>
+
+<p align="center">
+  <em>A live snapshot of the API Latency Visualizer dashboard.<br/>
+  Real-time measurements, statistics, and a responsive interface designed for clarity and speed.</em>
+</p>
+
