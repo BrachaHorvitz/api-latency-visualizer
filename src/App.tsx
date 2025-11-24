@@ -102,6 +102,16 @@ function App() {
     0,
   );
 
+  const handleRestart = () => {
+    if (timerRef.current !== null) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsRunning(false);
+    setMeasurements([]);
+    idRef.current = 1;
+  };
+
   return (
     <main
       style={{
@@ -125,11 +135,35 @@ function App() {
           <p style={{ textTransform: "uppercase", letterSpacing: "0.2em", color: "#38bdf8" }}>
             Diagnostics
           </p>
-          <h1 style={{ fontSize: "2.5rem", margin: "0.25rem 0 0" }}>API Latency Visualizer</h1>
-          <p style={{ color: "#94a3b8", marginTop: "0.5rem" }}>
-            Periodically ping any HTTP endpoint and watch the latency stats update live.
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <h1 style={{ fontSize: "2.5rem", margin: "0.25rem 0 0" }}>API Latency Visualizer</h1>
+            {isRunning && (
+              <span
+                style={{
+                  backgroundColor: "rgba(16, 185, 129, 0.15)",
+                  color: "#34d399",
+                  border: "1px solid rgba(16, 185, 129, 0.4)",
+                  borderRadius: "999px",
+                  padding: "0.25rem 0.85rem",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                }}
+              >
+                Running…
+              </span>
+            )}
+          </div>
+          <p style={{ color: "#cbd5f5", marginTop: "0.35rem", fontSize: "1.05rem" }}>
+            Continuously probes a URL on an interval, tracking latency spikes and response health.
           </p>
-          <p style={{ color: "#64748b", marginTop: "0.75rem", fontSize: "0.95rem" }}>
+          <p style={{ color: "#cbd5f5", marginTop: "0.75rem", fontSize: "0.95rem" }}>
             Targeting <code style={{ color: "#e2e8f0" }}>{url}</code> every {intervalMs} ms •{" "}
             {isRunning ? "Running" : "Stopped"}
           </p>
@@ -145,6 +179,7 @@ function App() {
         >
           <h2 style={{ marginTop: 0, marginBottom: "1rem" }}>Controls</h2>
           <div
+            className="controls-grid"
             style={{
               display: "flex",
               flexWrap: "wrap",
@@ -188,6 +223,10 @@ function App() {
                     return;
                   }
 
+                  if (parsed < MIN_INTERVAL_MS) {
+                    return;
+                  }
+
                   setIntervalMs(parsed);
                 }}
                 onBlur={() => {
@@ -219,25 +258,51 @@ function App() {
               />
             </label>
 
-            <button
-              type="button"
-              onClick={() => setIsRunning((prev) => !prev)}
-              disabled={!url.trim() || !intervalInput.trim() || intervalMs <= 0}
+            <div
+              className="button-group"
               style={{
-                flex: "0 0 140px",
-                padding: "0.9rem 1.25rem",
-                borderRadius: "0.75rem",
-                border: "none",
-                fontWeight: 600,
-                cursor: !url.trim() || intervalMs <= 0 ? "not-allowed" : "pointer",
-                opacity: !url.trim() || intervalMs <= 0 ? 0.5 : 1,
-                backgroundColor: isRunning ? "#dc2626" : "#16a34a",
-                color: "#f8fafc",
-                transition: "transform 120ms ease, filter 120ms ease",
+                display: "flex",
+                gap: "0.75rem",
+                flexWrap: "wrap",
               }}
             >
-              {isRunning ? "Stop" : "Start"}
-            </button>
+              <button
+                type="button"
+                onClick={() => setIsRunning((prev) => !prev)}
+                disabled={!url.trim() || !intervalInput.trim() || intervalMs <= 0}
+                style={{
+                  flex: "0 0 140px",
+                  padding: "0.9rem 1.25rem",
+                  borderRadius: "0.75rem",
+                  border: "none",
+                  fontWeight: 600,
+                  cursor: !url.trim() || intervalMs <= 0 ? "not-allowed" : "pointer",
+                  opacity: !url.trim() || intervalMs <= 0 ? 0.5 : 1,
+                  backgroundColor: isRunning ? "#dc2626" : "#16a34a",
+                  color: "#f8fafc",
+                  transition: "transform 120ms ease, filter 120ms ease",
+                }}
+              >
+                {isRunning ? "Stop" : "Start"}
+              </button>
+              <button
+                type="button"
+                onClick={handleRestart}
+                style={{
+                  flex: "0 0 140px",
+                  padding: "0.9rem 1.25rem",
+                  borderRadius: "0.75rem",
+                  border: "1px solid rgba(148, 163, 184, 0.5)",
+                  fontWeight: 600,
+                  backgroundColor: "rgba(15, 23, 42, 0.8)",
+                  color: "#e2e8f0",
+                  cursor: "pointer",
+                  transition: "transform 120ms ease, filter 120ms ease",
+                }}
+              >
+                Restart Test
+              </button>
+            </div>
           </div>
           {/* TODO: Controls section:
               - API URL input
@@ -256,6 +321,7 @@ function App() {
         >
           <h2 style={{ marginTop: 0, marginBottom: "1rem" }}>Stats</h2>
           <div
+            className="stats-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
@@ -315,7 +381,7 @@ function App() {
                 : "No measurements yet"}
             </span>
           </div>
-          <div style={{ marginTop: "1rem", overflowX: "auto" }}>
+          <div className="table-scroll-container" style={{ marginTop: "1rem", overflowX: "auto" }}>
             <table
               style={{
                 width: "100%",
